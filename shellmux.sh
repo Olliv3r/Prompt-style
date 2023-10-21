@@ -71,13 +71,20 @@ setup_config() {
 	twoline) setup;;
 	"") setup;;
         *)
-          echo "Estilo de prompt inválido"
+          echo "Estilo de prompt inválido para kali"
 	  exit 1;;
-        esac
+      esac
       ;;
-    parrot) setup;;
+    parrot)
+      case "$prompt_style_arg" in
+	"") setup;;
+	*)
+	  echo "Estilo de prompt inválido para parrot!"
+	  exit 1;;
+      esac
+      ;;
     *)
-      echo "Distro inválida"
+      echo "Distro inválida!"
       exit 1;;
   esac
 }
@@ -123,7 +130,7 @@ undo() {
 ### VERIFICAÇÃO ###
 
 if [ ${#@} -eq 0 ] ; then
-  echo "::: Banner :::"
+  echo -e "\n::: SHELLMUX :::\n\nPara mais informaçôes tente -h, --help"
   exit 0
 else
   while [ -n "$1" ] ; do
