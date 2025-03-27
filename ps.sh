@@ -3,8 +3,8 @@
 # 
 # Autor: Oliver, 2025
 #
-# Autor			: Oliver Silva, <oliveobom100@gmail.com>
-# Manutenção	: Oliver Silva, <oliveobom100@gmail.com>
+# Autor            : Oliver Silva, <oliveobom100@gmail.com>
+# Manutenção       : Oliver Silva, <oliveobom100@gmail.com>
 #
 # -------------------------
 # Este programa personaliza o prompt do Termux Android, melhora visualmente o terminal.
@@ -25,6 +25,7 @@
 # 
 # Versão 0.1: Listagem de distros e estilos de prompt, fazer e desfazer uma configuração, backup, alterar nome usenrname e hostname
 
+# Importação de módulos
 source distros.sh
 
 
@@ -37,8 +38,15 @@ function trap_alert() {
 	exit 1
 }
 
+# VERSÃO DO PROGRAMA
+function program_version() {
+	echo -n "$(basename "$0")"
+	grep "^# Versão" "$0" | tail -1 | cut -d : -f 1 | tr -d \# | tr A-Z a-z
+}
+
 # LISTA DISTROS
 function list_distros() {
+	echo
 	for distro in "${!distros[@]}"; do
 		json="${distros["$distro"]}"
 
@@ -46,6 +54,7 @@ function list_distros() {
 	
 		echo -e "\e[2;32m√ \e[0m$name \e[1;31m-> \e[0m$distro"
 	done
+	echo
 }
 
 # LISTA ESTILOS DE PROMPT
@@ -55,18 +64,20 @@ function list_prompt_style() {
 	if [[ -n "${distros["$distro_arg"]}" ]]; then
 		json="${distros["$distro_arg"]}"
 
+		echo
 		echo "$json" | jq -c '.prompt_style | to_entries[]' | while read -r entry; do
 			key=$(echo "$entry" | jq -r '.key')
 			prompt_name=$(echo "$entry" | jq -r '.value.name')
 			echo -e "\e[2;32m√ \e[0m$prompt_name \e[1;31m-> \e[0m$key"
 		done
+		echo
 	else
 		echo -e "\e[1;31m! \e[0mNenhum estilo para a distro $distro_arg"
 		exit 1
 	fi
 }
 
-# Configura
+# CONFIGURA UMA DISTRO
 function setup_conf() {
 	local distro_arg=$1
 
@@ -91,7 +102,7 @@ function setup_conf() {
 	fi
 }
 
-# Desfaz a configuração
+# DESFAZ A CONFIGURAÇÃO DE UMA DISTRO
 function undo_conf() {
 	if [[ -f "$config_file" ]]; then
 		printf "\r* Desfazendo configuração..."
@@ -103,7 +114,7 @@ function undo_conf() {
 	fi
 }
 
-# Backup do arquivo atual
+# FAZ BACKUP DA CONFIGURAÇÃO ATUAL
 function do_backup() {
 	if [[ -f $config_file ]]; then
 		printf "\r* Fazendo backup..."
@@ -115,8 +126,13 @@ function do_backup() {
 	fi
 }
 
-# Restaurar o ultimo backup
+# RESTAURA O ÚLTIMO BACKUP
 function do_restory() {
+	if [[ ! -d .backup ]]; then
+		echo "! Nenhum backup disponível"
+		exit 1
+	fi
+
 	latest_backup=$(ls -t .backup | head -n 1)
 
 	if [[ -n "$latest_backup" ]]; then
@@ -128,7 +144,7 @@ function do_restory() {
 	fi
 }
 
-# Modificar o ps
+# MODIFICA O ESTILO DE PROMPT DE UMA DISTRO
 function modify_ps() {
 	local ps_arg=$1
 	local distro_author="olliv3r"
@@ -163,7 +179,7 @@ function modify_ps() {
 	fi
 }
 
-# Modifica o username
+# ALTERA O NOME DE USUÁRIO DE UMA CONFIGURAÇÃO
 function modify_user() {
 	local user_arg=$1
 	distro_author="olliv3r"
@@ -197,7 +213,7 @@ function modify_user() {
 	fi
 }
 
-# Modifica o host
+# ALTERA O NOME DE HOST DE UMA CONFIGURAÇÃO
 function modify_host() {
 	local host_arg=$1
 	distro_author="olliv3r"
@@ -231,9 +247,9 @@ function modify_host() {
 	fi
 }
 
-
+# AJUDA
 function usage_help() {
-	echo -e "Programa que personaliza o prompt do Termux Android.\n\nUsage: $(basename "$0") [OPTIONS] ... [ARGUMENTS]\n\n$sd-hh, --help\tMostra esta tela de ajuda e sai\n$sd-ld, --list-distros\n\t\tLista distros disponíveis para uso\n$sd-lps <DISTRO>, --list-ps <DISTRO>\n\t\tLista todos os estilos de prompt de uma distro\n$sd-sc <DISTRO>, --setup-conf <DISTRO>\n\t\tAplica a configuração de uma distro\n$sd-uc, --undo-conf\n\t\tDesfaz a configuração atual de uma distro\n$sd-ps <PROMPT_STYLE>, --prompt-style <PROMPT_STYLE>\n\t\tModifica o estilo do prompt de uma distro\n$sd-u <NEW_USER>, --user <NEW_USER>\n\t\tModifica o nome de usuário\n$sd-h <NEW_HOST>, --host <NEW_HOST>\n\t\tModifica o nome do host\n$sd--restory\tRestaura o ultimo backup"
+	echo -e "Programa que personaliza o prompt do Termux Android.\n\nUsage: $(basename "$0") [OPTIONS] ... [ARGUMENTS]\n\n$sd-hh, --help\tMostra esta tela de ajuda e sai\n$sd-ld, --list-distros\n\t\tLista distros disponíveis para uso\n$sd-lps <DISTRO>, --list-ps <DISTRO>\n\t\tLista todos os estilos de prompt de uma distro\n$sd-sc <DISTRO>, --setup-conf <DISTRO>\n\t\tAplica a configuração de uma distro\n$sd-uc, --undo-conf\n\t\tDesfaz a configuração atual de uma distro\n$sd-ps <PROMPT_STYLE>, --prompt-style <PROMPT_STYLE>\n\t\tModifica o estilo do prompt de uma distro\n$sd-u <NEW_USER>, --user <NEW_USER>\n\t\tModifica o nome de usuário\n$sd-h <NEW_HOST>, --host <NEW_HOST>\n\t\tModifica o nome do host\n$sd--restory\tRestaura o ultimo backup\n$sd-v, --version\tVersão do programa\n"
 }
 
 # TRATAMENTO DAS OPÇÔES
@@ -304,8 +320,9 @@ if [ -n "$1" ]; then
 				modify_host $host_arg;;
 			--restory)
 				do_restory;;
+			-v| --version) program_version;;
 			*)
-				usage_help;;
+				echo -e "\e[1;31m! \e[0mOpção inválida $1, tente -hh, --help";;
 		esac
 		
 		shift
