@@ -1,3 +1,2 @@
-# shellmux
-Arquivos de configuração  
-![Tela](https://github.com/Olliv3r/Shellmux/tree/main/media/tela.gif)
+# Prompt-style
+Personaliza o prompt do Termux Android, modifica o visual do terminal.
